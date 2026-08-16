@@ -25,6 +25,12 @@ class DormancyReview:
     unknown_statuses: list[Finding]
 
 
+@dataclass(frozen=True)
+class MfaRegistrationReview:
+    findings: list[Finding]
+    unknown_statuses: list[Finding]
+
+
 def find_terminated_enabled_accounts(dataset: DatasetResult) -> list[Finding]:
     """Return R1 findings for terminated HR workers with enabled Entra accounts."""
     hr_workers = dataset.tables["hr_workers"].rows
@@ -151,6 +157,28 @@ def find_privileged_missing_owner_or_justification(dataset: DatasetResult) -> li
             findings.append(build_r5_finding(user, assignment))
 
     return findings
+
+
+def review_mfa_capable_registration(dataset: DatasetResult) -> MfaRegistrationReview:
+    """Return R6 findings and unknown statuses from supplied MFA-registration data."""
+    entra_users = dataset.tables["entra_users"].rows
+    mfa_records = dataset.tables["mfa_registration"].rows
+    users_by_id = group_entra_users_by_id(entra_users)
+    findings: list[Finding] = []
+    unknown_statuses: list[Finding] = []
+
+    for mfa_record in mfa_records:
+        user = users_by_id.get(mfa_record["entra_user_id"])
+        if user is None:
+            continue
+
+        has_mfa_capable_method = mfa_record["has_mfa_capable_method"]
+        if has_mfa_capable_method is False:
+            findings.append(build_r6_finding(user, mfa_record))
+        elif has_mfa_capable_method is None:
+            unknown_statuses.append(build_r6_unknown_status(user, mfa_record))
+
+    return MfaRegistrationReview(findings=findings, unknown_statuses=unknown_statuses)
 
 
 def group_entra_users_by_worker_key(entra_users: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
@@ -324,5 +352,49 @@ def build_r5_finding(user: dict[str, Any], assignment: dict[str, Any]) -> Findin
             "assignment_business_justification": assignment["business_justification"],
             "account_owner_worker_key": user["account_owner_worker_key"],
             "account_justification": user["account_justification"],
+        },
+    )
+
+
+def build_r6_finding(user: dict[str, Any], mfa_record: dict[str, Any]) -> Finding:
+    return Finding(
+        rule_id="R6_NO_MFA_CAPABLE_METHOD_REGISTERED",
+        description="Supplied MFA-registration data shows no MFA-capable registered method for the account.",
+        severity="Medium",
+        review_guidance=(
+            "This finding is based only on the supplied MFA-registration data and "
+            "requires human review. MFA registration does not prove enforcement, and "
+            "lack of registration does not prove compromise."
+        ),
+        evidence={
+            "entra_user_id": user["entra_user_id"],
+            "user_principal_name": user["user_principal_name"],
+            "mfa_record_id": mfa_record["mfa_record_id"],
+            "has_mfa_capable_method": mfa_record["has_mfa_capable_method"],
+            "registered_methods": mfa_record["registered_methods"],
+            "default_method": mfa_record["default_method"],
+            "mfa_registration_evidence": mfa_record["mfa_registration_evidence"],
+        },
+    )
+
+
+def build_r6_unknown_status(user: dict[str, Any], mfa_record: dict[str, Any]) -> Finding:
+    return Finding(
+        rule_id="R6_NO_MFA_CAPABLE_METHOD_REGISTERED_UNKNOWN",
+        description="Supplied MFA-registration data has unknown MFA-capable registration status.",
+        severity="Review",
+        review_guidance=(
+            "This is an unknown review status requiring human review. Unknown MFA "
+            "registration data is not clean and is not a normal R6 finding. MFA "
+            "registration does not prove enforcement."
+        ),
+        evidence={
+            "entra_user_id": user["entra_user_id"],
+            "user_principal_name": user["user_principal_name"],
+            "mfa_record_id": mfa_record["mfa_record_id"],
+            "has_mfa_capable_method": mfa_record["has_mfa_capable_method"],
+            "registered_methods": mfa_record["registered_methods"],
+            "default_method": mfa_record["default_method"],
+            "mfa_registration_evidence": mfa_record["mfa_registration_evidence"],
         },
     )

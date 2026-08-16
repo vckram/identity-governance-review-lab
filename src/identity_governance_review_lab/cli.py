@@ -7,11 +7,13 @@ from .loader import load_dataset
 from .rules import (
     DormancyReview,
     Finding,
+    MfaRegistrationReview,
     find_contractors_active_past_end_date,
     find_privileged_missing_owner_or_justification,
     find_terminated_enabled_accounts,
     find_terminated_privileged_access,
     review_dormant_enabled_accounts,
+    review_mfa_capable_registration,
 )
 
 
@@ -49,6 +51,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="After validation, print R5_PRIVILEGED_MISSING_OWNER_OR_JUSTIFICATION findings only.",
     )
+    parser.add_argument(
+        "--r6",
+        action="store_true",
+        help="After validation, print R6_NO_MFA_CAPABLE_METHOD_REGISTERED findings and unknown statuses only.",
+    )
     return parser
 
 
@@ -72,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Total validation errors: {dataset.total_errors}")
 
     if dataset.total_errors:
-        if args.r1 or args.r2 or args.r3 or args.r4 or args.r5:
+        if args.r1 or args.r2 or args.r3 or args.r4 or args.r5 or args.r6:
             print()
             print("Rule findings were not evaluated because validation errors were found.")
         return 1
@@ -109,6 +116,10 @@ def main(argv: list[str] | None = None) -> int:
             find_privileged_missing_owner_or_justification(dataset),
         )
 
+    if args.r6:
+        print()
+        print_mfa_registration_review(review_mfa_capable_registration(dataset))
+
     return 0
 
 
@@ -139,6 +150,26 @@ def print_dormancy_review(review: DormancyReview) -> None:
 
     if not review.unknown_statuses:
         print("No R4 unknown statuses.")
+        return
+
+    for index, finding in enumerate(review.unknown_statuses, start=1):
+        print(f"{index}. {finding.description}")
+        print(f"   Severity: {finding.severity}")
+        print(f"   Review: {finding.review_guidance}")
+        print("   Evidence:")
+        for key, value in finding.evidence.items():
+            print(f"   - {key}: {value}")
+
+
+def print_mfa_registration_review(review: MfaRegistrationReview) -> None:
+    print_findings("R6_NO_MFA_CAPABLE_METHOD_REGISTERED", review.findings)
+    print()
+    print("R6 unknown review statuses")
+    print("These statuses require human review; unknown MFA-registration data is not clean.")
+    print()
+
+    if not review.unknown_statuses:
+        print("No R6 unknown statuses.")
         return
 
     for index, finding in enumerate(review.unknown_statuses, start=1):
