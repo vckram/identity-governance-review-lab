@@ -2,7 +2,7 @@
 
 Identity Governance Review Lab is an offline portfolio project for comparing synthetic Microsoft Entra identity records with synthetic HR worker records. The project is intended to identify identity-governance discrepancies that require human review and to produce both technical and manager-readable reporting in a later phase.
 
-This repository is currently in the requirements phase. Phase 1 defines scope, data expectations, rule behavior, and initial design decisions only. It does not include an analysis engine, reports, tests, CI, live integrations, or sample datasets.
+This repository currently includes version-one requirements, synthetic sample data, a local CSV validation and rule-evaluation engine, and pytest coverage for the implemented rules and CLI behavior. Reporting is in the design phase. The project does not yet generate reports, connect to live services, modify accounts, or process real data.
 
 ## Problem Statement
 
@@ -48,13 +48,13 @@ The normalized schema includes a stable matching identifier shared between synth
 
 ## Expected Outputs
 
-Later phases are expected to produce:
+Later phases are expected to produce offline Markdown reports:
 
 - Technical findings with rule identifiers, evidence, and affected normalized records.
 - Manager-readable summaries that explain discrepancy counts and review priorities.
 - Clear language that findings require human review and are not automatic proof of malicious activity or policy violation.
 
-No generated reports are produced in Phase 1.
+No generated reports are produced yet.
 
 ## Explicit Exclusions
 

@@ -37,3 +37,15 @@ Rationale: Identity governance work often needs to serve administrators who need
 Decision: Version one will not connect to a live Microsoft Entra tenant or Microsoft Graph.
 
 Rationale: Avoiding live tenant access keeps the project safe, reproducible, and appropriate for public portfolio review.
+
+## D7: Markdown-First Offline Reports
+
+Decision: Initial reporting will use offline Markdown files rather than PDF, HTML, dashboards, or web UI.
+
+Rationale: Markdown keeps the portfolio output easy to review, diff, regenerate, and inspect without additional services or publishing infrastructure.
+
+## D8: Separate Technical and Manager-Readable Views
+
+Decision: Reporting will provide a technical report and a separate manager-readable summary generated from the same validated synthetic data and deterministic rule findings.
+
+Rationale: Technical reviewers need detailed evidence fields and rule identifiers, while managers need concise counts, review priorities, limitations, and plain-language next steps. Both views must preserve the same scope boundaries: synthetic data only, offline only, human review instead of remediation, no MFA enforcement claims, and no claim to replace Microsoft Entra ID Governance.

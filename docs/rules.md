@@ -62,6 +62,7 @@ For version one, privileged access is evaluated through normalized privileged-ro
 - Exact trigger condition: Entra `account_enabled` equals `true`, `last_sign_in_date` is known, and days between the analysis date and `last_sign_in_date` is greater than or equal to the configured dormancy threshold. The proposed default threshold is 90 days.
 - Proposed severity and rationale: Low by default. Dormancy can indicate stale access, but many legitimate accounts are quiet by design.
 - Unknown status handling: Missing `last_sign_in_date` is reported separately with rule identifier `R4_DORMANT_ENABLED_ACCOUNT_UNKNOWN` and severity `Review`. `Review` is not part of the normal High, Critical, Medium, or Low finding scale. It means missing sign-in data requires human review and is not clean.
+- Reporting treatment: R4 unknown statuses should appear in technical and manager-readable reports as review statuses separate from normal R4 dormant findings.
 - Evidence included in the finding: `entra_user_id`, `user_principal_name`, `display_name`, `last_sign_in_date`, analysis date, configured dormancy threshold, `days_since_last_sign_in`.
 - Recommended human review: Confirm account purpose, owner, expected sign-in pattern, and whether the account should remain enabled.
 - Possible false positives: Service, emergency, test, guest, or seasonal accounts may sign in rarely; last sign-in data may be unavailable or delayed; account may authenticate through paths not represented in the supplied data.
@@ -97,6 +98,8 @@ For version one, privileged access is evaluated through normalized privileged-ro
 - Evidence included in the finding: `entra_user_id`, `user_principal_name`, `mfa_record_id`, `has_mfa_capable_method`, `registered_methods`, `default_method`, `mfa_registration_evidence`.
 - Recommended human review: Confirm current authentication-method registration, determine whether MFA is required by policy, and guide the user or owner through approved registration steps if needed.
 - Possible false positives: Registration export is stale; user authenticates with a method not represented in the supplied data; account is excluded for a documented reason; account is disabled but still present in the dataset.
+- Unknown status handling: Missing or null `has_mfa_capable_method` values should be reported separately as unknown review statuses, not as normal R6 findings and not as clean.
+- Reporting treatment: R6 unknown statuses should appear in technical and manager-readable reports as review statuses separate from normal R6 findings.
 - Limitations: This rule does not prove MFA is enforced or not enforced. Missing MFA-registration records are unknown unless the future implementation explicitly chooses to report them separately without adding a new rule.
 - Related control theme / reference to verify: NIST SP 800-53 IA-2 identification and authentication; compare against the current CIS Microsoft 365 Foundations Benchmark before publication.
 - Risky example: MFA data for `alex.chen@example.invalid` lists `["password", "email"]` and `has_mfa_capable_method = false`.

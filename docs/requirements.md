@@ -2,7 +2,7 @@
 
 ## Project Status
 
-Identity Governance Review Lab is in the requirements phase. This phase defines documentation, normalized data expectations, deterministic rule behavior, and initial decisions. It does not implement the Python analysis engine.
+Identity Governance Review Lab has completed initial requirements, synthetic sample data, core CSV loading and validation, deterministic rule evaluation for the six version-one rules, and pytest coverage for current behavior. Reporting is in the design phase and has not yet been implemented.
 
 ## Functional Requirements
 
@@ -20,6 +20,14 @@ Identity Governance Review Lab is in the requirements phase. This phase defines 
 - The project shall treat missing data as unknown where appropriate.
 - The project shall produce evidence-based findings in a later phase.
 - The project shall support technical output and manager-readable output in a later phase.
+- The project shall support an offline Markdown technical report in a later phase.
+- The project shall support an offline Markdown manager-readable summary in a later phase.
+- The technical report shall include validation status, rule counts, detailed findings, unknown review statuses, evidence fields, and human-review guidance.
+- The manager-readable summary shall include plain-language scope, aggregate counts, review priorities, and human-review next steps.
+- Reports shall identify R4 and R6 unknown review statuses separately from normal findings.
+- Reports shall state that findings are discrepancies requiring human review, not automatic proof of danger, compromise, or policy violation.
+- Reports shall not claim that MFA registration proves MFA enforcement.
+- Reports shall not claim to replace Microsoft Entra ID Governance.
 - The project shall avoid automatic account modification or remediation.
 
 ## Non-Functional Requirements
@@ -57,6 +65,10 @@ Identity Governance Review Lab is in the requirements phase. This phase defines 
 - `docs/decisions.md` records the initial architectural and scope decisions.
 - `.gitignore` excludes Python artifacts, editor files, generated reports, secrets, and local/private input data while allowing future committed synthetic sample data.
 - No application code, tests, CI configuration, generated reports, or synthetic datasets are created in Phase 1.
+- Future report implementation is accepted only if technical and manager-readable outputs are generated offline from validated synthetic data.
+- Future report implementation is accepted only if reports include validation summary, finding counts, detailed evidence, unknown review statuses, limitations, and human-review language.
+- Future report implementation is accepted only if validation errors prevent rule/report output that could be mistaken for complete review results.
+- Future report implementation is accepted only if reports avoid remediation instructions, MFA enforcement claims, live tenant claims, and Microsoft Entra ID Governance replacement claims.
 
 ## Known Assumptions
 
