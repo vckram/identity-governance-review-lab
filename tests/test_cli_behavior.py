@@ -75,6 +75,42 @@ def test_cli_output_uses_human_review_language_without_remediation_claims(capsys
     assert "modify accounts" not in output.lower()
 
 
+def test_cli_report_dir_writes_markdown_reports(tmp_path: Path, capsys) -> None:
+    report_dir = tmp_path / "reports"
+
+    exit_code = main(["--data-dir", str(DATA_DIR), "--report-dir", str(report_dir)])
+
+    output = capsys.readouterr().out
+    technical_report = report_dir / "identity-review-technical.md"
+    summary_report = report_dir / "identity-review-summary.md"
+    assert exit_code == 0
+    assert "Markdown reports written:" in output
+    assert technical_report.exists()
+    assert summary_report.exists()
+    technical_text = technical_report.read_text(encoding="utf-8")
+    summary_text = summary_report.read_text(encoding="utf-8")
+    assert "synthetic data only" in technical_text
+    assert "### R4_DORMANT_ENABLED_ACCOUNT Unknown Review Statuses" in technical_text
+    assert "### R6_NO_MFA_CAPABLE_METHOD_REGISTERED Unknown Review Statuses" in technical_text
+    assert "No R6 unknown review statuses." in technical_text
+    assert "does not replace Microsoft Entra ID Governance" in summary_text
+    assert "- R6_NO_MFA_CAPABLE_METHOD_REGISTERED unknown review statuses: 0" in summary_text
+
+
+def test_cli_report_dir_does_not_write_reports_when_validation_errors_exist(tmp_path: Path, capsys) -> None:
+    bad_data_dir = tmp_path / "bad-data"
+    report_dir = tmp_path / "reports"
+    shutil.copytree(DATA_DIR, bad_data_dir)
+    remove_csv_column(bad_data_dir / "hr_workers.csv", "worker_key")
+
+    exit_code = main(["--data-dir", str(bad_data_dir), "--report-dir", str(report_dir)])
+
+    output = capsys.readouterr().out
+    assert exit_code == 1
+    assert "Reports were not written because validation errors were found." in output
+    assert not report_dir.exists()
+
+
 def remove_csv_column(path: Path, column_name: str) -> None:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)

@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from .loader import load_dataset
+from .reporting import generate_reports, write_reports
 from .rules import (
     DormancyReview,
     Finding,
@@ -61,6 +62,13 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="After validation, print R1 through R6 findings in order.",
     )
+    parser.add_argument(
+        "--report-dir",
+        help=(
+            "After validation, write offline Markdown reports to this directory "
+            "(identity-review-technical.md and identity-review-summary.md)."
+        ),
+    )
     return parser
 
 
@@ -85,9 +93,15 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Total validation errors: {dataset.total_errors}")
 
     if dataset.total_errors:
-        if run_any_rule:
+        if run_any_rule and args.report_dir:
+            print()
+            print("Rule findings and reports were not evaluated because validation errors were found.")
+        elif run_any_rule:
             print()
             print("Rule findings were not evaluated because validation errors were found.")
+        elif args.report_dir:
+            print()
+            print("Reports were not written because validation errors were found.")
         return 1
 
     if args.r1 or args.all_rules:
@@ -125,6 +139,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.r6 or args.all_rules:
         print()
         print_mfa_registration_review(review_mfa_capable_registration(dataset))
+
+    if args.report_dir:
+        report_paths = write_reports(Path(args.report_dir), generate_reports(dataset, data_dir))
+        print()
+        print("Markdown reports written:")
+        for report_path in report_paths:
+            print(f"- {report_path}")
 
     return 0
 
