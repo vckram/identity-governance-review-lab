@@ -133,6 +133,26 @@ def review_dormant_enabled_accounts(
     return DormancyReview(findings=findings, unknown_statuses=unknown_statuses)
 
 
+def find_privileged_missing_owner_or_justification(dataset: DatasetResult) -> list[Finding]:
+    """Return R5 findings for privileged assignments missing owner or justification documentation."""
+    entra_users = dataset.tables["entra_users"].rows
+    role_assignments = dataset.tables["privileged_role_assignments"].rows
+    users_by_id = group_entra_users_by_id(entra_users)
+
+    findings: list[Finding] = []
+    for assignment in role_assignments:
+        user = users_by_id.get(assignment["entra_user_id"])
+        if user is None:
+            continue
+
+        has_owner = has_value(assignment["owner_worker_key"]) or has_value(user["account_owner_worker_key"])
+        has_justification = has_value(assignment["business_justification"]) or has_value(user["account_justification"])
+        if not has_owner or not has_justification:
+            findings.append(build_r5_finding(user, assignment))
+
+    return findings
+
+
 def group_entra_users_by_worker_key(entra_users: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     users_by_worker_key: dict[str, list[dict[str, Any]]] = {}
     for user in entra_users:
@@ -141,6 +161,16 @@ def group_entra_users_by_worker_key(entra_users: list[dict[str, Any]]) -> dict[s
             continue
         users_by_worker_key.setdefault(worker_key, []).append(user)
     return users_by_worker_key
+
+
+def group_entra_users_by_id(entra_users: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    users_by_id: dict[str, dict[str, Any]] = {}
+    for user in entra_users:
+        entra_user_id = user["entra_user_id"]
+        if entra_user_id is None:
+            continue
+        users_by_id[entra_user_id] = user
+    return users_by_id
 
 
 def group_role_assignments_by_user_id(
@@ -153,6 +183,10 @@ def group_role_assignments_by_user_id(
             continue
         assignments_by_user_id.setdefault(entra_user_id, []).append(assignment)
     return assignments_by_user_id
+
+
+def has_value(value: Any) -> bool:
+    return value is not None and str(value).strip() != ""
 
 
 def build_r1_finding(worker: dict[str, Any], user: dict[str, Any]) -> Finding:
@@ -267,5 +301,28 @@ def build_r4_unknown_status(user: dict[str, Any], analysis_date: date, threshold
             "analysis_date": analysis_date,
             "configured_dormancy_threshold_days": threshold_days,
             "days_since_last_sign_in": None,
+        },
+    )
+
+
+def build_r5_finding(user: dict[str, Any], assignment: dict[str, Any]) -> Finding:
+    return Finding(
+        rule_id="R5_PRIVILEGED_MISSING_OWNER_OR_JUSTIFICATION",
+        description="Privileged-role assignment is missing documented owner or business justification.",
+        severity="Medium",
+        review_guidance=(
+            "This is a governance documentation gap requiring human review. Confirm "
+            "the business owner and reason for privileged access. This does not prove "
+            "the privilege is inappropriate."
+        ),
+        evidence={
+            "entra_user_id": user["entra_user_id"],
+            "user_principal_name": user["user_principal_name"],
+            "role_assignment_id": assignment["role_assignment_id"],
+            "role_name": assignment["role_name"],
+            "assignment_owner_worker_key": assignment["owner_worker_key"],
+            "assignment_business_justification": assignment["business_justification"],
+            "account_owner_worker_key": user["account_owner_worker_key"],
+            "account_justification": user["account_justification"],
         },
     )
