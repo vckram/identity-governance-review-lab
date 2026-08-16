@@ -1,8 +1,8 @@
 # Identity Governance Review Lab
 
-Identity Governance Review Lab is an offline portfolio project for comparing synthetic Microsoft Entra identity records with synthetic HR worker records. The project is intended to identify identity-governance discrepancies that require human review and to produce both technical and manager-readable reporting in a later phase.
+Identity Governance Review Lab is an offline portfolio project for comparing synthetic Microsoft Entra identity records with synthetic HR worker records. The project identifies identity-governance discrepancies that require human review and can produce both technical and manager-readable Markdown reports.
 
-This repository currently includes version-one requirements, synthetic sample data, a local CSV validation and rule-evaluation engine, and pytest coverage for the implemented rules and CLI behavior. Reporting is in the design phase. The project does not yet generate reports, connect to live services, modify accounts, or process real data.
+This repository currently includes version-one requirements, synthetic sample data, a local CSV validation and rule-evaluation engine, offline Markdown report generation, and pytest coverage for the implemented rules and CLI behavior. The project does not connect to live services, modify accounts, or process real data.
 
 ## Problem Statement
 
@@ -20,7 +20,7 @@ The tool will identify discrepancies requiring human review. It will not automat
 
 ## Version-One Scope
 
-Version one will compare synthetic normalized Entra identity data with synthetic normalized HR worker data. It will evaluate only the six rules listed below and produce review-oriented findings in later phases.
+Version one compares synthetic normalized Entra identity data with synthetic normalized HR worker data. It evaluates only the six rules listed below and produces review-oriented findings.
 
 The portfolio version is offline-first and synthetic-data-only. After the portfolio version is complete, the workflow may be evaluated for whether it could support a paid identity review assessment or future MSP product. This repository is not designing a SaaS product in version one.
 
@@ -48,13 +48,42 @@ The normalized schema includes a stable matching identifier shared between synth
 
 ## Expected Outputs
 
-Later phases are expected to produce offline Markdown reports:
+The CLI can produce:
 
 - Technical findings with rule identifiers, evidence, and affected normalized records.
 - Manager-readable summaries that explain discrepancy counts and review priorities.
 - Clear language that findings require human review and are not automatic proof of malicious activity or policy violation.
 
-No generated reports are produced yet.
+Generated reports are local artifacts and are ignored by Git.
+
+## CLI Usage
+
+Run the validation summary:
+
+```powershell
+$env:PYTHONPATH = "src"; .\.venv\Scripts\python -m identity_governance_review_lab --data-dir sample-data
+```
+
+Run validation and all six rules:
+
+```powershell
+$env:PYTHONPATH = "src"; .\.venv\Scripts\python -m identity_governance_review_lab --data-dir sample-data --all-rules
+```
+
+Run one rule by using `--r1`, `--r2`, `--r3`, `--r4`, `--r5`, or `--r6` instead of `--all-rules`.
+
+Generate offline Markdown reports:
+
+```powershell
+$env:PYTHONPATH = "src"; .\.venv\Scripts\python -m identity_governance_review_lab --data-dir sample-data --report-dir reports
+```
+
+This creates:
+
+- `reports/identity-review-technical.md`
+- `reports/identity-review-summary.md`
+
+The `reports/` directory is ignored because generated reports are local output artifacts. Reports use synthetic data only, are generated offline, and present discrepancies requiring human review. They do not modify accounts, prove compromise, prove MFA enforcement, connect to a live tenant, or replace Microsoft Entra ID Governance.
 
 ## Explicit Exclusions
 
