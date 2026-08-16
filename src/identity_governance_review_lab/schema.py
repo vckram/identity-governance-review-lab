@@ -8,6 +8,7 @@ class FieldSpec:
     name: str
     field_type: str
     required: bool
+    allowed_values: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -22,8 +23,8 @@ SCHEMAS: dict[str, TableSchema] = {
         fields=(
             FieldSpec("worker_key", "string", True),
             FieldSpec("worker_display_name", "string", False),
-            FieldSpec("worker_type", "string_enum", True),
-            FieldSpec("worker_status", "string_enum", True),
+            FieldSpec("worker_type", "string_enum", True, ("employee", "contractor")),
+            FieldSpec("worker_status", "string_enum", True, ("active", "terminated", "leave", "unknown")),
             FieldSpec("employment_start_date", "date", False),
             FieldSpec("termination_date", "date_or_null", False),
             FieldSpec("contract_end_date", "date_or_null", False),
@@ -40,7 +41,7 @@ SCHEMAS: dict[str, TableSchema] = {
             FieldSpec("user_principal_name", "string", True),
             FieldSpec("display_name", "string", False),
             FieldSpec("account_enabled", "boolean", True),
-            FieldSpec("user_type", "string_enum", False),
+            FieldSpec("user_type", "string_enum", False, ("employee", "contractor", "guest", "service", "admin")),
             FieldSpec("created_date", "date", False),
             FieldSpec("last_sign_in_date", "date_or_null", False),
             FieldSpec("department", "string", False),
@@ -49,7 +50,7 @@ SCHEMAS: dict[str, TableSchema] = {
             FieldSpec("account_justification", "string", False),
             FieldSpec("review_notes", "string", False),
             FieldSpec("days_since_last_sign_in", "integer_or_null", False),
-            FieldSpec("dormancy_review_status", "string_enum", False),
+            FieldSpec("dormancy_review_status", "string_enum", False, ("dormant", "clean", "unknown")),
         ),
     ),
     "groups": TableSchema(
@@ -58,7 +59,7 @@ SCHEMAS: dict[str, TableSchema] = {
             FieldSpec("group_id", "string", True),
             FieldSpec("display_name", "string", True),
             FieldSpec("description", "string", False),
-            FieldSpec("group_type", "string_enum", False),
+            FieldSpec("group_type", "string_enum", False, ("security", "Microsoft 365", "role-assignable", "distribution")),
             FieldSpec("is_privileged_group", "boolean", False),
             FieldSpec("owner_worker_key", "string", False),
             FieldSpec("access_justification", "string", False),
@@ -70,7 +71,7 @@ SCHEMAS: dict[str, TableSchema] = {
             FieldSpec("membership_id", "string", True),
             FieldSpec("group_id", "string", True),
             FieldSpec("entra_user_id", "string", True),
-            FieldSpec("membership_type", "string_enum", False),
+            FieldSpec("membership_type", "string_enum", False, ("direct", "nested", "eligible", "unknown")),
             FieldSpec("assignment_start_date", "date", False),
             FieldSpec("assignment_end_date", "date_or_null", False),
         ),
@@ -81,7 +82,12 @@ SCHEMAS: dict[str, TableSchema] = {
             FieldSpec("role_assignment_id", "string", True),
             FieldSpec("entra_user_id", "string", True),
             FieldSpec("role_name", "string", True),
-            FieldSpec("privilege_source", "string_enum", False),
+            FieldSpec(
+                "privilege_source",
+                "string_enum",
+                False,
+                ("direct", "direct-active", "group-based", "eligible", "active", "unknown"),
+            ),
             FieldSpec("assignment_start_date", "date", False),
             FieldSpec("assignment_end_date", "date_or_null", False),
             FieldSpec("owner_worker_key", "string", False),

@@ -108,4 +108,9 @@ def parse_field(field: FieldSpec, raw_value: str | None) -> Any:
             raise ParseError("required field is blank")
         return None
 
-    return parse_value(raw_value.strip(), field.field_type)
+    parsed_value = parse_value(raw_value.strip(), field.field_type)
+    if field.allowed_values is not None and parsed_value not in field.allowed_values:
+        allowed_values = ", ".join(field.allowed_values)
+        raise ParseError(f"expected one of: {allowed_values}")
+
+    return parsed_value
