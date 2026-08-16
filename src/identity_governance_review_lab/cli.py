@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from .loader import load_dataset
+from .rules import Finding, find_terminated_enabled_accounts
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -14,6 +15,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--data-dir",
         default="sample-data",
         help="Directory containing the synthetic CSV files. Defaults to sample-data.",
+    )
+    parser.add_argument(
+        "--r1",
+        action="store_true",
+        help="After validation, print R1_TERMINATED_ENABLED_ACCOUNT findings only.",
     )
     return parser
 
@@ -37,4 +43,32 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Total records: {dataset.total_records}")
     print(f"Total validation errors: {dataset.total_errors}")
 
-    return 1 if dataset.total_errors else 0
+    if dataset.total_errors:
+        if args.r1:
+            print()
+            print("R1 findings were not evaluated because validation errors were found.")
+        return 1
+
+    if args.r1:
+        print()
+        print_r1_findings(find_terminated_enabled_accounts(dataset))
+
+    return 0
+
+
+def print_r1_findings(findings: list[Finding]) -> None:
+    print("R1_TERMINATED_ENABLED_ACCOUNT findings")
+    print("These findings are discrepancies requiring human review, not automatic danger.")
+    print()
+
+    if not findings:
+        print("No R1 findings.")
+        return
+
+    for index, finding in enumerate(findings, start=1):
+        print(f"{index}. {finding.description}")
+        print(f"   Severity: {finding.severity}")
+        print(f"   Review: {finding.review_guidance}")
+        print("   Evidence:")
+        for key, value in finding.evidence.items():
+            print(f"   - {key}: {value}")
