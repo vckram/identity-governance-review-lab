@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editors and operating system files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Secrets and local configuration
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+secrets/
+
+# Local/private input data
+data/input/
+data/local/
+data/private/
+local-data/
+private-data/
+real-data/
+
+# Generated outputs
+reports/
+generated-reports/
+output/
+outputs/
+exports/
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Synthetic sample data may be committed later under data/sample/ or sample-data/.
