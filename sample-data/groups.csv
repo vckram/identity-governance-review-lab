@@ -1,0 +1,5 @@
+group_id,display_name,description,group_type,is_privileged_group,owner_worker_key,access_justification
+grp-001,Finance Reviewers,Synthetic finance application reviewers,security,false,wrk-001,Finance review workflow access
+grp-002,Engineering Contractors,Synthetic contractor collaboration group,security,false,wrk-001,Project collaboration for active contractors
+grp-003,Privileged Role Operators,Synthetic privileged access staging group,security,true,wrk-002,Used to represent group-based privileged access before normalization
+grp-004,Support Analysts,Synthetic support access group,security,false,wrk-001,Support queue access

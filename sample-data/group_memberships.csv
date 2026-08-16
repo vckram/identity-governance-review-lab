@@ -1,0 +1,7 @@
+membership_id,group_id,entra_user_id,membership_type,assignment_start_date,assignment_end_date
+mem-001,grp-001,usr-003,direct,2024-01-09,
+mem-002,grp-002,usr-004,direct,2026-02-01,2026-12-31
+mem-003,grp-002,usr-005,direct,2025-11-16,
+mem-004,grp-003,usr-010,direct,2022-01-10,
+mem-005,grp-003,usr-012,direct,2024-06-01,
+mem-006,grp-004,usr-009,direct,2024-10-08,

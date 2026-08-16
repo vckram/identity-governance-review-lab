@@ -8,6 +8,8 @@ Each table identifies whether a field is a source field supplied by an input fil
 
 `worker_key` is the stable synthetic identifier used to match HR worker records to Entra user records. It should be created for the lab dataset and must not be a real employee ID, government identifier, payroll identifier, or production HR identifier.
 
+One `worker_key` may map to more than one Entra account, such as a standard user account and a separate administrative account. Rules should evaluate each matching Entra account independently.
+
 Names and email addresses are useful review evidence, but they are not stable enough to be the primary matching identifier.
 
 ## Privileged Access Normalization

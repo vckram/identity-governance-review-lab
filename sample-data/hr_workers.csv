@@ -1,0 +1,11 @@
+worker_key,worker_display_name,worker_type,worker_status,employment_start_date,termination_date,contract_end_date,department,manager_worker_key,hr_record_last_updated
+wrk-001,Maya Rivers,employee,active,2021-02-15,,,Operations,,2026-08-01
+wrk-002,Theo Grant,employee,active,2020-09-21,,,Information Security,,2026-08-01
+wrk-003,Lina Moreno,employee,active,2024-01-08,,,Finance,wrk-001,2026-08-01
+wrk-004,Rafael Stone,contractor,active,2026-02-01,,2026-12-31,Engineering,wrk-001,2026-08-01
+wrk-005,Priya Nair,contractor,active,2025-11-15,,2026-05-31,Engineering,wrk-001,2026-08-01
+wrk-006,Ellis Hart,employee,terminated,2022-06-13,2026-06-30,,Finance,wrk-001,2026-07-01
+wrk-007,Jordan Vale,employee,terminated,2019-04-01,2026-05-15,,Information Security,wrk-002,2026-05-16
+wrk-008,Samira Cole,employee,active,2023-03-20,,,Operations,wrk-001,2026-08-01
+wrk-009,Noah Finch,employee,active,2024-10-07,,,Support,wrk-001,2026-08-01
+wrk-010,Avery Quinn,employee,active,2021-12-06,,,Information Security,wrk-002,2026-08-01

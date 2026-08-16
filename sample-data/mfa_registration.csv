@@ -1,0 +1,14 @@
+mfa_record_id,entra_user_id,has_mfa_capable_method,registered_methods,default_method,registration_last_updated,mfa_registration_evidence
+mfa-001,usr-001,true,"[""phone_app_notification""]",phone_app_notification,2026-07-20,Supplied data shows an MFA-capable app notification method
+mfa-002,usr-002,true,"[""fido2_security_key"",""phone_app_notification""]",fido2_security_key,2026-07-22,Supplied data shows MFA-capable methods
+mfa-003,usr-003,true,"[""phone_app_notification""]",phone_app_notification,2026-06-15,Supplied data shows an MFA-capable app notification method
+mfa-004,usr-004,true,"[""sms""]",sms,2026-06-01,Supplied data shows an MFA-capable SMS method
+mfa-005,usr-005,true,"[""phone_app_notification""]",phone_app_notification,2026-03-10,Supplied data shows an MFA-capable app notification method
+mfa-006,usr-006,true,"[""sms""]",sms,2026-01-12,Supplied data shows an MFA-capable SMS method
+mfa-007,usr-007,true,"[""phone_app_notification""]",phone_app_notification,2026-02-11,Supplied data shows an MFA-capable app notification method
+mfa-008,usr-008,true,"[""phone_app_notification""]",phone_app_notification,2026-01-05,Supplied data shows an MFA-capable app notification method
+mfa-009,usr-009,true,"[""sms""]",sms,2026-04-30,Supplied data shows an MFA-capable SMS method
+mfa-010,usr-010,true,"[""fido2_security_key""]",fido2_security_key,2026-07-30,Supplied data shows an MFA-capable security key
+mfa-011,usr-011,true,"[""fido2_security_key"",""phone_app_notification""]",fido2_security_key,2026-07-30,Supplied data shows MFA-capable emergency account methods
+mfa-012,usr-012,true,"[""phone_app_notification""]",phone_app_notification,2026-05-20,Supplied data shows an MFA-capable app notification method
+mfa-013,usr-013,false,"[""password"",""email""]",email,2026-07-01,No MFA-capable method listed in supplied registration export

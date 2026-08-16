@@ -1,0 +1,6 @@
+role_assignment_id,entra_user_id,role_name,privilege_source,assignment_start_date,assignment_end_date,owner_worker_key,business_justification,is_active_assignment
+pra-001,usr-010,Privileged Role Administrator,direct-active,2022-01-10,,wrk-002,Identity platform administration,true
+pra-002,usr-011,Global Administrator,direct-active,2025-01-15,,wrk-002,Emergency tenant administration,true
+pra-003,usr-007,Global Administrator,direct-active,2023-05-01,,wrk-002,Former identity administrator assignment retained after termination,true
+pra-004,usr-012,Cloud Application Administrator,group-based,2024-06-01,,,,true
+pra-005,usr-013,Authentication Administrator,direct-active,2024-03-01,,wrk-001,Approved finance platform authentication support,true
