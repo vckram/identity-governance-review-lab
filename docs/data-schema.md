@@ -34,7 +34,7 @@ Group records and group membership records may provide supporting context, but g
 | account_justification | String | Optional | Source | Business justification for privileged or special-purpose accounts. | `Break-glass account for emergency tenant administration` | R5 |
 | review_notes | String | Optional | Source | Optional lab notes for manual review context. | `Synthetic account used in dormant-user scenario` | None |
 | days_since_last_sign_in | Integer or null | No | Derived | Number of days between analysis date and last sign-in date. Null when last sign-in is unknown. | `108` | R4 |
-| is_dormant_candidate | Boolean | No | Derived | Indicates the account meets the configured dormant-account review threshold. | `true` | R4 |
+| dormancy_review_status | String enum | No | Derived | Represents the R4 dormancy review outcome: dormant, clean, or unknown. | `unknown` | R4 |
 
 ## Groups
 
