@@ -4,7 +4,12 @@ import argparse
 from pathlib import Path
 
 from .loader import load_dataset
-from .rules import Finding, find_terminated_enabled_accounts, find_terminated_privileged_access
+from .rules import (
+    Finding,
+    find_contractors_active_past_end_date,
+    find_terminated_enabled_accounts,
+    find_terminated_privileged_access,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,6 +30,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--r2",
         action="store_true",
         help="After validation, print R2_TERMINATED_PRIVILEGED_ACCESS findings only.",
+    )
+    parser.add_argument(
+        "--r3",
+        action="store_true",
+        help="After validation, print R3_CONTRACTOR_ACTIVE_PAST_END_DATE findings only.",
     )
     return parser
 
@@ -49,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Total validation errors: {dataset.total_errors}")
 
     if dataset.total_errors:
-        if args.r1 or args.r2:
+        if args.r1 or args.r2 or args.r3:
             print()
             print("Rule findings were not evaluated because validation errors were found.")
         return 1
@@ -66,6 +76,13 @@ def main(argv: list[str] | None = None) -> int:
         print_findings(
             "R2_TERMINATED_PRIVILEGED_ACCESS",
             find_terminated_privileged_access(dataset),
+        )
+
+    if args.r3:
+        print()
+        print_findings(
+            "R3_CONTRACTOR_ACTIVE_PAST_END_DATE",
+            find_contractors_active_past_end_date(dataset),
         )
 
     return 0

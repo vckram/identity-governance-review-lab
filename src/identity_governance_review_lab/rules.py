@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from .loader import DatasetResult
+
+ANALYSIS_DATE = date(2026, 8, 16)
 
 
 @dataclass(frozen=True)
@@ -58,6 +61,35 @@ def find_terminated_privileged_access(dataset: DatasetResult) -> list[Finding]:
             for assignment in assignments_by_user_id.get(user["entra_user_id"], []):
                 if assignment["is_active_assignment"] is not False:
                     findings.append(build_r2_finding(worker, user, assignment))
+
+    return findings
+
+
+def find_contractors_active_past_end_date(
+    dataset: DatasetResult,
+    analysis_date: date = ANALYSIS_DATE,
+) -> list[Finding]:
+    """Return R3 findings for contractors with enabled accounts past contract end."""
+    hr_workers = dataset.tables["hr_workers"].rows
+    entra_users = dataset.tables["entra_users"].rows
+    users_by_worker_key = group_entra_users_by_worker_key(entra_users)
+
+    findings: list[Finding] = []
+    for worker in hr_workers:
+        if worker["worker_type"] != "contractor":
+            continue
+
+        contract_end_date = worker["contract_end_date"]
+        if contract_end_date is None or contract_end_date >= analysis_date:
+            continue
+
+        worker_key = worker["worker_key"]
+        if worker_key is None:
+            continue
+
+        for user in users_by_worker_key.get(worker_key, []):
+            if user["account_enabled"] is True:
+                findings.append(build_r3_finding(worker, user, analysis_date))
 
     return findings
 
@@ -125,5 +157,27 @@ def build_r2_finding(worker: dict[str, Any], user: dict[str, Any], assignment: d
             "role_name": assignment["role_name"],
             "privilege_source": assignment["privilege_source"],
             "is_active_assignment": assignment["is_active_assignment"],
+        },
+    )
+
+
+def build_r3_finding(worker: dict[str, Any], user: dict[str, Any], analysis_date: date) -> Finding:
+    return Finding(
+        rule_id="R3_CONTRACTOR_ACTIVE_PAST_END_DATE",
+        description="Contractor has a matching enabled Entra account after the contract end date.",
+        severity="Medium",
+        review_guidance=(
+            "This is a discrepancy requiring human review. Confirm whether the contract "
+            "was extended, whether HR data is current, and whether the account still "
+            "requires access before any account action is considered."
+        ),
+        evidence={
+            "worker_key": worker["worker_key"],
+            "worker_display_name": worker["worker_display_name"],
+            "contract_end_date": worker["contract_end_date"],
+            "analysis_date": analysis_date,
+            "entra_user_id": user["entra_user_id"],
+            "user_principal_name": user["user_principal_name"],
+            "account_enabled": user["account_enabled"],
         },
     )
