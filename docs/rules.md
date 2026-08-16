@@ -61,6 +61,7 @@ For version one, privileged access is evaluated through normalized privileged-ro
 - Required input fields: Entra users `entra_user_id`, `user_principal_name`, `account_enabled`, `last_sign_in_date`; analysis date; dormant threshold.
 - Exact trigger condition: Entra `account_enabled` equals `true`, `last_sign_in_date` is known, and days between the analysis date and `last_sign_in_date` is greater than or equal to the configured dormancy threshold. The proposed default threshold is 90 days.
 - Proposed severity and rationale: Low by default. Dormancy can indicate stale access, but many legitimate accounts are quiet by design.
+- Unknown status handling: Missing `last_sign_in_date` is reported separately with rule identifier `R4_DORMANT_ENABLED_ACCOUNT_UNKNOWN` and severity `Review`. `Review` is not part of the normal High, Critical, Medium, or Low finding scale. It means missing sign-in data requires human review and is not clean.
 - Evidence included in the finding: `entra_user_id`, `user_principal_name`, `display_name`, `last_sign_in_date`, analysis date, configured dormancy threshold, `days_since_last_sign_in`.
 - Recommended human review: Confirm account purpose, owner, expected sign-in pattern, and whether the account should remain enabled.
 - Possible false positives: Service, emergency, test, guest, or seasonal accounts may sign in rarely; last sign-in data may be unavailable or delayed; account may authenticate through paths not represented in the supplied data.
@@ -68,7 +69,7 @@ For version one, privileged access is evaluated through normalized privileged-ro
 - Related control theme / reference to verify: NIST SP 800-53 AC-2 account management; compare against the current CIS Microsoft 365 Foundations Benchmark before publication.
 - Risky example: Entra shows enabled account `legacy.admin@example.invalid` with `last_sign_in_date = 2026-03-01`, analysis date `2026-08-16`, and threshold 90 days.
 - Clean example: Entra shows enabled account `sam.rivera@example.invalid` with `last_sign_in_date = 2026-08-01`, analysis date `2026-08-16`, and threshold 90 days.
-- Testable acceptance criteria: Given an enabled account with known last sign-in date at least 90 days before analysis date using the default threshold, the future engine creates one R4 dormant finding. Given a missing `last_sign_in_date`, it reports unknown review status and does not create a normal R4 dormant finding. Given a known last sign-in date inside the threshold, it creates no R4 finding.
+- Testable acceptance criteria: Given an enabled account with known last sign-in date at least 90 days before analysis date using the default threshold, the future engine creates one `R4_DORMANT_ENABLED_ACCOUNT` dormant finding. Given a missing `last_sign_in_date`, it reports `R4_DORMANT_ENABLED_ACCOUNT_UNKNOWN` with severity `Review` and does not create a normal R4 dormant finding. Given a known last sign-in date inside the threshold, it creates no R4 finding.
 
 ## R5: Privileged Account Has No Documented Owner or Justification
 

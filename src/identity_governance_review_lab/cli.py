@@ -5,10 +5,12 @@ from pathlib import Path
 
 from .loader import load_dataset
 from .rules import (
+    DormancyReview,
     Finding,
     find_contractors_active_past_end_date,
     find_terminated_enabled_accounts,
     find_terminated_privileged_access,
+    review_dormant_enabled_accounts,
 )
 
 
@@ -36,6 +38,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="After validation, print R3_CONTRACTOR_ACTIVE_PAST_END_DATE findings only.",
     )
+    parser.add_argument(
+        "--r4",
+        action="store_true",
+        help="After validation, print R4_DORMANT_ENABLED_ACCOUNT findings and unknown statuses only.",
+    )
     return parser
 
 
@@ -59,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Total validation errors: {dataset.total_errors}")
 
     if dataset.total_errors:
-        if args.r1 or args.r2 or args.r3:
+        if args.r1 or args.r2 or args.r3 or args.r4:
             print()
             print("Rule findings were not evaluated because validation errors were found.")
         return 1
@@ -85,6 +92,10 @@ def main(argv: list[str] | None = None) -> int:
             find_contractors_active_past_end_date(dataset),
         )
 
+    if args.r4:
+        print()
+        print_dormancy_review(review_dormant_enabled_accounts(dataset))
+
     return 0
 
 
@@ -98,6 +109,26 @@ def print_findings(rule_id: str, findings: list[Finding]) -> None:
         return
 
     for index, finding in enumerate(findings, start=1):
+        print(f"{index}. {finding.description}")
+        print(f"   Severity: {finding.severity}")
+        print(f"   Review: {finding.review_guidance}")
+        print("   Evidence:")
+        for key, value in finding.evidence.items():
+            print(f"   - {key}: {value}")
+
+
+def print_dormancy_review(review: DormancyReview) -> None:
+    print_findings("R4_DORMANT_ENABLED_ACCOUNT", review.findings)
+    print()
+    print("R4 unknown review statuses")
+    print("These statuses require human review; missing sign-in data is not clean.")
+    print()
+
+    if not review.unknown_statuses:
+        print("No R4 unknown statuses.")
+        return
+
+    for index, finding in enumerate(review.unknown_statuses, start=1):
         print(f"{index}. {finding.description}")
         print(f"   Severity: {finding.severity}")
         print(f"   Review: {finding.review_guidance}")

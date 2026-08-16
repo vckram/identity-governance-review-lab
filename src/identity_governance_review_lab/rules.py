@@ -7,6 +7,7 @@ from typing import Any
 from .loader import DatasetResult
 
 ANALYSIS_DATE = date(2026, 8, 16)
+DORMANCY_THRESHOLD_DAYS = 90
 
 
 @dataclass(frozen=True)
@@ -16,6 +17,12 @@ class Finding:
     severity: str
     review_guidance: str
     evidence: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class DormancyReview:
+    findings: list[Finding]
+    unknown_statuses: list[Finding]
 
 
 def find_terminated_enabled_accounts(dataset: DatasetResult) -> list[Finding]:
@@ -92,6 +99,38 @@ def find_contractors_active_past_end_date(
                 findings.append(build_r3_finding(worker, user, analysis_date))
 
     return findings
+
+
+def review_dormant_enabled_accounts(
+    dataset: DatasetResult,
+    analysis_date: date = ANALYSIS_DATE,
+    threshold_days: int = DORMANCY_THRESHOLD_DAYS,
+) -> DormancyReview:
+    """Return R4 dormant findings and unknown statuses for enabled Entra users."""
+    findings: list[Finding] = []
+    unknown_statuses: list[Finding] = []
+
+    for user in dataset.tables["entra_users"].rows:
+        if user["account_enabled"] is not True:
+            continue
+
+        last_sign_in_date = user["last_sign_in_date"]
+        if last_sign_in_date is None:
+            unknown_statuses.append(build_r4_unknown_status(user, analysis_date, threshold_days))
+            continue
+
+        days_since_last_sign_in = (analysis_date - last_sign_in_date).days
+        if days_since_last_sign_in >= threshold_days:
+            findings.append(
+                build_r4_finding(
+                    user,
+                    analysis_date,
+                    threshold_days,
+                    days_since_last_sign_in,
+                )
+            )
+
+    return DormancyReview(findings=findings, unknown_statuses=unknown_statuses)
 
 
 def group_entra_users_by_worker_key(entra_users: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
@@ -179,5 +218,54 @@ def build_r3_finding(worker: dict[str, Any], user: dict[str, Any], analysis_date
             "entra_user_id": user["entra_user_id"],
             "user_principal_name": user["user_principal_name"],
             "account_enabled": user["account_enabled"],
+        },
+    )
+
+
+def build_r4_finding(
+    user: dict[str, Any],
+    analysis_date: date,
+    threshold_days: int,
+    days_since_last_sign_in: int,
+) -> Finding:
+    return Finding(
+        rule_id="R4_DORMANT_ENABLED_ACCOUNT",
+        description="Enabled Entra account has not signed in within the configured dormancy threshold.",
+        severity="Low",
+        review_guidance=(
+            "This is a discrepancy requiring human review. Confirm the account purpose, "
+            "owner, expected sign-in pattern, and whether the account should remain "
+            "enabled. This does not prove the account is unused."
+        ),
+        evidence={
+            "entra_user_id": user["entra_user_id"],
+            "user_principal_name": user["user_principal_name"],
+            "display_name": user["display_name"],
+            "last_sign_in_date": user["last_sign_in_date"],
+            "analysis_date": analysis_date,
+            "configured_dormancy_threshold_days": threshold_days,
+            "days_since_last_sign_in": days_since_last_sign_in,
+        },
+    )
+
+
+def build_r4_unknown_status(user: dict[str, Any], analysis_date: date, threshold_days: int) -> Finding:
+    return Finding(
+        rule_id="R4_DORMANT_ENABLED_ACCOUNT_UNKNOWN",
+        description="Enabled Entra account is missing last sign-in data, so dormancy status is unknown.",
+        severity="Review",
+        review_guidance=(
+            "This is an unknown review status requiring human review. Missing sign-in "
+            "data is not clean and is not a normal dormant finding. Confirm whether "
+            "sign-in data is unavailable, delayed, or stored elsewhere."
+        ),
+        evidence={
+            "entra_user_id": user["entra_user_id"],
+            "user_principal_name": user["user_principal_name"],
+            "display_name": user["display_name"],
+            "last_sign_in_date": user["last_sign_in_date"],
+            "analysis_date": analysis_date,
+            "configured_dormancy_threshold_days": threshold_days,
+            "days_since_last_sign_in": None,
         },
     )
