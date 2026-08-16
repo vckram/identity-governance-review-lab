@@ -56,6 +56,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="After validation, print R6_NO_MFA_CAPABLE_METHOD_REGISTERED findings and unknown statuses only.",
     )
+    parser.add_argument(
+        "--all-rules",
+        action="store_true",
+        help="After validation, print R1 through R6 findings in order.",
+    )
     return parser
 
 
@@ -63,6 +68,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     data_dir = Path(args.data_dir)
     dataset = load_dataset(data_dir)
+    run_any_rule = args.r1 or args.r2 or args.r3 or args.r4 or args.r5 or args.r6 or args.all_rules
 
     print("Identity Governance Review Lab validation summary")
     print(f"Data directory: {data_dir}")
@@ -79,44 +85,44 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Total validation errors: {dataset.total_errors}")
 
     if dataset.total_errors:
-        if args.r1 or args.r2 or args.r3 or args.r4 or args.r5 or args.r6:
+        if run_any_rule:
             print()
             print("Rule findings were not evaluated because validation errors were found.")
         return 1
 
-    if args.r1:
+    if args.r1 or args.all_rules:
         print()
         print_findings(
             "R1_TERMINATED_ENABLED_ACCOUNT",
             find_terminated_enabled_accounts(dataset),
         )
 
-    if args.r2:
+    if args.r2 or args.all_rules:
         print()
         print_findings(
             "R2_TERMINATED_PRIVILEGED_ACCESS",
             find_terminated_privileged_access(dataset),
         )
 
-    if args.r3:
+    if args.r3 or args.all_rules:
         print()
         print_findings(
             "R3_CONTRACTOR_ACTIVE_PAST_END_DATE",
             find_contractors_active_past_end_date(dataset),
         )
 
-    if args.r4:
+    if args.r4 or args.all_rules:
         print()
         print_dormancy_review(review_dormant_enabled_accounts(dataset))
 
-    if args.r5:
+    if args.r5 or args.all_rules:
         print()
         print_findings(
             "R5_PRIVILEGED_MISSING_OWNER_OR_JUSTIFICATION",
             find_privileged_missing_owner_or_justification(dataset),
         )
 
-    if args.r6:
+    if args.r6 or args.all_rules:
         print()
         print_mfa_registration_review(review_mfa_capable_registration(dataset))
 
