@@ -2,7 +2,7 @@
 
 ## Project Status
 
-Identity Governance Review Lab has completed initial requirements, synthetic sample data, core CSV loading and validation, deterministic rule evaluation for the six version-one rules, and pytest coverage for current behavior. Reporting is in the design phase and has not yet been implemented.
+Identity Governance Review Lab has completed the version-one portfolio scope: requirements, synthetic sample data, core CSV loading and validation, deterministic rule evaluation for the six version-one rules, CLI output, offline Markdown reports, and pytest coverage for current behavior.
 
 ## Functional Requirements
 
@@ -18,10 +18,10 @@ Identity Governance Review Lab has completed initial requirements, synthetic sam
   - Account is not registered for an MFA-capable method according to the supplied data.
 - The project shall distinguish source fields supplied in input data from derived fields calculated by the tool.
 - The project shall treat missing data as unknown where appropriate.
-- The project shall produce evidence-based findings in a later phase.
-- The project shall support technical output and manager-readable output in a later phase.
-- The project shall support an offline Markdown technical report in a later phase.
-- The project shall support an offline Markdown manager-readable summary in a later phase.
+- The project shall produce evidence-based findings.
+- The project shall support technical output and manager-readable output.
+- The project shall support an offline Markdown technical report.
+- The project shall support an offline Markdown manager-readable summary.
 - The technical report shall include validation status, rule counts, detailed findings, unknown review statuses, evidence fields, and human-review guidance.
 - The manager-readable summary shall include plain-language scope, aggregate counts, review priorities, and human-review next steps.
 - Reports shall identify R4 and R6 unknown review statuses separately from normal findings.
@@ -46,7 +46,7 @@ Identity Governance Review Lab has completed initial requirements, synthetic sam
 - The project shall not process real personal data, production data, customer data, or live tenant exports.
 - The project shall not connect to Microsoft Graph or a live Microsoft Entra tenant in version one.
 - The project shall not store credentials, tokens, secrets, or tenant connection details.
-- Secret scanning should be considered before public publication, without adding tooling during Phase 1.
+- Secret scanning should be considered before public publication, without adding tooling unless it is intentionally added in a later security-hardening step.
 - The project shall clearly state that findings require human review.
 - The project shall not claim every finding is definitively dangerous.
 - The project shall not claim that MFA registration proves MFA enforcement.
@@ -64,11 +64,14 @@ Identity Governance Review Lab has completed initial requirements, synthetic sam
 - `docs/rules.md` includes a cautious related-control or governance-reference note for each rule without claiming compliance satisfaction.
 - `docs/decisions.md` records the initial architectural and scope decisions.
 - `.gitignore` excludes Python artifacts, editor files, generated reports, secrets, and local/private input data while allowing future committed synthetic sample data.
-- No application code, tests, CI configuration, generated reports, or synthetic datasets are created in Phase 1.
-- Future report implementation is accepted only if technical and manager-readable outputs are generated offline from validated synthetic data.
-- Future report implementation is accepted only if reports include validation summary, finding counts, detailed evidence, unknown review statuses, limitations, and human-review language.
-- Future report implementation is accepted only if validation errors prevent rule/report output that could be mistaken for complete review results.
-- Future report implementation is accepted only if reports avoid remediation instructions, MFA enforcement claims, live tenant claims, and Microsoft Entra ID Governance replacement claims.
+- `sample-data/` contains fictional CSV files that intentionally exercise all six version-one rules and clean cases.
+- The CLI loads and validates local CSV files, prints validation summaries, and can print individual rule output or all rule output.
+- The engine implements exactly the six documented version-one rules.
+- The test suite covers sample-data behavior, rule edge cases, loader validation, CLI behavior, and report generation.
+- Technical and manager-readable Markdown reports are generated offline from validated synthetic data.
+- Reports include validation summary, finding counts, detailed evidence, unknown review statuses, limitations, and human-review language.
+- Validation errors prevent rule/report output that could be mistaken for complete review results.
+- Reports avoid remediation instructions, MFA enforcement claims, live tenant claims, and Microsoft Entra ID Governance replacement claims.
 
 ## Known Assumptions
 
@@ -89,4 +92,5 @@ Identity Governance Review Lab has completed initial requirements, synthetic sam
 - Version one does not include a web application interface.
 - Version one does not provide SIEM, SOC, or Splunk functionality.
 - Version one does not evaluate all identity governance controls.
+- R6 reports explicit null `has_mfa_capable_method` values as unknown review statuses, but it does not currently flag Entra accounts with no matching MFA-registration record at all.
 - Version one does not replace Microsoft Entra ID Governance or a formal security audit.

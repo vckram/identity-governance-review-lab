@@ -10,7 +10,7 @@ The sample organization name used in account domains is fictional, and all user 
 - Proposed dormancy threshold: `90` days
 - Dormancy outcomes: `dormant`, `clean`, or `unknown`
 
-`days_since_last_sign_in` and `dormancy_review_status` are included in the sample data as expected validation values for review. The future analysis engine should calculate or derive these values rather than blindly trusting them as input.
+`days_since_last_sign_in` and `dormancy_review_status` are included in the sample data as expected validation values for review. The analysis engine calculates or derives dormancy values for rule logic rather than blindly trusting these sample fields as input.
 
 ## CSV Files
 
@@ -46,3 +46,5 @@ The sample organization name used in account domains is fictional, and all user 
 ## Notes
 
 `pra-003` includes owner and justification values so `usr-007` is mainly an R2 scenario. `usr-012` remains the intended R5 scenario for missing privileged-access documentation.
+
+Run the CLI with `--report-dir reports` to generate local Markdown reports that summarize these synthetic scenarios.

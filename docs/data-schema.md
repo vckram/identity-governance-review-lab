@@ -1,8 +1,8 @@
 # Data Schema
 
-This document defines proposed normalized project fields for synthetic data. These are not claimed to be exact Microsoft Graph, Microsoft Entra admin center, or HRIS export field names unless explicitly marked as source fields in future implementation notes.
+This document defines version-one normalized project fields for synthetic data. These are not claimed to be exact Microsoft Graph, Microsoft Entra admin center, or HRIS export field names.
 
-Each table identifies whether a field is a source field supplied by an input file or a derived field calculated by the future analysis engine. Missing values should be treated as unknown where appropriate, not automatically safe or dangerous.
+Each table identifies whether a field is a source field supplied by an input file or a derived field calculated by the analysis engine. Missing values should be treated as unknown where appropriate, not automatically safe or dangerous.
 
 ## Shared Identifier
 
@@ -14,7 +14,7 @@ Names and email addresses are useful review evidence, but they are not stable en
 
 ## Privileged Access Normalization
 
-Version-one rules evaluate privileged access through the normalized privileged-role assignments table. If future synthetic input represents privileged access through a privileged group, that access should be normalized into a privileged-role assignment with `privilege_source` such as `group-based` before R2 or R5 is evaluated.
+Version-one rules evaluate privileged access through the normalized privileged-role assignments table. If synthetic input represents privileged access through a privileged group, that access should be normalized into a privileged-role assignment with `privilege_source` such as `group-based` before R2 or R5 is evaluated.
 
 Group records and group membership records may provide supporting context, but group-only fields are not direct triggers for version-one rules.
 
