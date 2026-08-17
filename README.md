@@ -8,6 +8,18 @@ This repository currently includes version-one requirements, synthetic sample da
 
 From a local clone, create or activate a Python environment, install the test dependency, and run:
 
+Windows:
+
+```powershell
+py -m venv .venv
+```
+
+If `py` is unavailable, use `python -m venv .venv` instead.
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
 ```powershell
 .\.venv\Scripts\python -m pip install -r requirements-dev.txt
 ```
