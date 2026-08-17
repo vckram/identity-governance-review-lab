@@ -84,7 +84,7 @@ The portfolio version is offline-first and synthetic-data-only. After the portfo
 
 ## Expected Inputs
 
-Inputs will be synthetic files created for lab use only. Proposed normalized input areas are documented in [docs/data-schema.md](docs/data-schema.md):
+Inputs are synthetic files created for lab use only. Version-one normalized input areas are documented in [docs/data-schema.md](docs/data-schema.md):
 
 - Entra users.
 - Groups.
@@ -202,7 +202,7 @@ This project is different because it is an offline synthetic portfolio lab focus
 
 ## Data Honesty
 
-All data used by this project will be synthetic. Any future sample data committed to the repository must be invented for lab purposes and must not contain real worker, tenant, customer, contractor, account, or organization data.
+All data used by this project is synthetic. Any future sample data committed to the repository must be invented for lab purposes and must not contain real worker, tenant, customer, contractor, account, or organization data.
 
 ## Copyright
 
